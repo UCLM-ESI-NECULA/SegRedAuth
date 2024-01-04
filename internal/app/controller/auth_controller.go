@@ -26,12 +26,14 @@ func NewAuthController(g *gin.RouterGroup) *AuthControllerImpl {
 type AuthController interface {
 	Signup(c *gin.Context)
 	Login(c *gin.Context)
+	CheckToken(c *gin.Context)
 }
 
 // RegisterRoutes registers the authentication routes
 func (ac *AuthControllerImpl) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/signup", ac.Signup)
 	router.POST("/login", ac.Login)
+	router.POST("/checkToken", ac.CheckToken)
 }
 
 // Signup handles the /signup endpoint
@@ -67,7 +69,7 @@ func (ac *AuthControllerImpl) Login(c *gin.Context) {
 		common.HandleError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, token)
+	c.JSON(http.StatusOK, dao.Token{Token: token})
 }
 
 func (ac *AuthControllerImpl) CheckToken(c *gin.Context) {
