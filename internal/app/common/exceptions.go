@@ -7,21 +7,13 @@ import (
 )
 
 type APIError struct {
-	StatusCode int
-	Err        error
-	Message    string
+	StatusCode int    `json:"statusCode"`
+	Err        error  `json:"error,omitempty"`
+	Message    string `json:"message"`
 }
 
 func (e *APIError) Error() string {
 	return e.Err.Error()
-}
-
-func GenerateAPIError(statusCode int, err error, message string) *APIError {
-	return &APIError{
-		StatusCode: statusCode,
-		Err:        err,
-		Message:    message,
-	}
 }
 
 func GlobalErrorHandler() gin.HandlerFunc {
@@ -34,19 +26,28 @@ func GlobalErrorHandler() gin.HandlerFunc {
 				// Check if it's an APIError
 				var apiErr *APIError
 				if errors.As(e.Err, &apiErr) {
-					c.JSON(apiErr.StatusCode, gin.H{"error": apiErr.Message})
+					c.JSON(apiErr.StatusCode, APIError{StatusCode: apiErr.StatusCode, Message: apiErr.Message})
 					return
 				}
 			}
 
 			// If it's not an APIError, return a generic server error
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+			c.JSON(http.StatusInternalServerError, APIError{StatusCode: http.StatusInternalServerError, Message: "Internal server error"})
 		}
 	}
 }
 
 // NewAPIError creates an APIError and adds it to the Gin context
 func NewAPIError(c *gin.Context, statusCode int, err error, message string) {
-	apiErr := GenerateAPIError(statusCode, err, message)
-	_ = c.Error(apiErr)
+	_ = c.Error(&APIError{
+		StatusCode: statusCode,
+		Err:        err,
+		Message:    message,
+	})
+}
+
+func HandleNoRoute() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, APIError{StatusCode: http.StatusNotFound, Message: "Not found"})
+	}
 }

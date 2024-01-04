@@ -14,9 +14,11 @@ type AuthControllerImpl struct {
 	svc service.AuthService
 }
 
-func NewAuthController() *AuthControllerImpl {
+func NewAuthController(g *gin.RouterGroup) *AuthControllerImpl {
 	userRepo := repository.NewUserRepository(common.ConnectToDB())
-	return &AuthControllerImpl{svc: service.NewAuthService(userRepo)}
+	c := &AuthControllerImpl{svc: service.NewAuthService(userRepo)}
+	c.RegisterRoutes(g)
+	return c
 }
 
 type AuthController interface {

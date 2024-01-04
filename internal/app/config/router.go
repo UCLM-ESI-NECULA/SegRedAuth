@@ -10,10 +10,9 @@ func SetupRouter() *gin.Engine {
 
 	r := gin.Default()
 	r.Use(common.GlobalErrorHandler())
+	r.NoRoute(common.HandleNoRoute())
 
 	v1 := r.Group("/api/v1")
-
-	authCtrl := controller.NewAuthController()
-	authCtrl.RegisterRoutes(v1)
+	controller.NewAuthController(v1)
 	return r
 }
