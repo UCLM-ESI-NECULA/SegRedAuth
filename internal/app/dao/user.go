@@ -12,8 +12,12 @@ type BaseModel struct {
 }
 
 type User struct {
-	ID       int    `gorm:"column:id; primary_key; not null" json:"id"`
+	ID       int    `gorm:"column:id; primary_key; not null" json:"id,omitempty"`
 	Username string `gorm:"column:username; not null" json:"username"`
-	Password string `gorm:"column:password; not null->:false" json:"password"`
+	Password string `gorm:"column:password; not null->:false" json:"password,omitempty"`
 	BaseModel
+}
+
+type Token struct {
+	Token string `json:"access_token"`
 }

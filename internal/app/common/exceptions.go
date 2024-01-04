@@ -37,17 +37,62 @@ func GlobalErrorHandler() gin.HandlerFunc {
 	}
 }
 
-// NewAPIError creates an APIError and adds it to the Gin context
-func NewAPIError(c *gin.Context, statusCode int, err error, message string) {
-	_ = c.Error(&APIError{
-		StatusCode: statusCode,
-		Err:        err,
+func UnauthorizedError(message string) *APIError {
+	return &APIError{
+		StatusCode: http.StatusUnauthorized,
 		Message:    message,
-	})
+	}
+}
+
+func EmptyParamsError(param string) *APIError {
+	return &APIError{
+		StatusCode: http.StatusBadRequest,
+		Message:    param + " cannot be empty",
+	}
+}
+
+func FileOwnerMismatch() *APIError {
+	return &APIError{
+		StatusCode: http.StatusUnauthorized,
+		Message:    "token and file owner do not match",
+	}
+}
+
+func FileCreationMismatch() *APIError {
+	return &APIError{
+		StatusCode: http.StatusUnauthorized,
+		Message:    "can't create a file for another user, file owner and token do not match",
+	}
+}
+
+func BadRequestError(message string) *APIError {
+	return &APIError{
+		StatusCode: http.StatusBadRequest,
+		Message:    message,
+	}
+}
+
+func ForwardError(c *gin.Context, apiError *APIError) {
+	_ = c.Error(apiError)
 }
 
 func HandleNoRoute() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, APIError{StatusCode: http.StatusNotFound, Message: "Not found"})
 	}
+}
+
+// HandleError abstracts the error handling logic.
+func HandleError(c *gin.Context, err error) {
+	var apiErr *APIError
+	if errors.As(err, &apiErr) {
+		ForwardError(c, apiErr)
+		return
+	}
+
+	_ = c.Error(&APIError{
+		StatusCode: http.StatusInternalServerError,
+		Err:        err,
+		Message:    err.Error(),
+	})
 }

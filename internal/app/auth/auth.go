@@ -10,10 +10,13 @@ import (
 	"time"
 )
 
-func GenerateToken(username string) string {
+func GenerateToken(username string) (string, error) {
 	secret := os.Getenv("JWT_SECRET_KEY")
-	expiryStr, _ := strconv.Atoi(os.Getenv("JWT_EXPIRATION_MINUTES"))
-
+	expiryStr, atoiErr := strconv.Atoi(os.Getenv("JWT_EXPIRATION_MINUTES"))
+	if atoiErr != nil {
+		log.Error("Error converting string to int", atoiErr)
+		return "", fmt.Errorf("oops, something went wrong")
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
 		"exp":      time.Now().Add(time.Minute * time.Duration(expiryStr)).Unix(), // Token expires after 5 minutes
@@ -22,22 +25,21 @@ func GenerateToken(username string) string {
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		log.Error("Got an error when generating the token", err)
-		return ""
+		return "", fmt.Errorf("error generating the token")
 	}
 
-	return tokenString
+	return tokenString, nil
 }
 
 // HashPassword with bcrypt hashing method, the salt is automatically generated as part of the hashing process
 // and is included within the resulting hashed password string.
 // The format is generally something like $2a$[cost]$[22 character salt][31 character hash].
-func HashPassword(password string) string {
+func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		_ = fmt.Errorf("got an error when generating the hash")
-		return ""
+		return "", fmt.Errorf("error when generating the hash")
 	}
-	return string(hashedPassword)
+	return string(hashedPassword), nil
 }
 
 func CheckPasswordHash(password, hash string) error {
