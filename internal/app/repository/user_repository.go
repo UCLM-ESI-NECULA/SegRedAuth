@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"seg-red-auth/internal/app/common"
 	"seg-red-auth/internal/app/dao"
 )
 
@@ -47,6 +48,11 @@ func (ur UserRepositoryImpl) GetUser(username string) (*dao.User, error) {
 	return user, nil
 }
 func (ur UserRepositoryImpl) Save(user *dao.User) (*dao.User, error) {
+	var count int64
+	ur.db.Model(&dao.User{}).Where("username = ?", user.Username).Count(&count)
+	if count > 0 {
+		return nil, common.BadRequestError("username already exists")
+	}
 	result := ur.db.Save(user)
 	if result.Error != nil {
 		return nil, fmt.Errorf("error when saving user: %v", result.Error)

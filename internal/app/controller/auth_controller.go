@@ -92,9 +92,9 @@ func (ac *AuthControllerImpl) CheckToken(c *gin.Context) {
 func checkUserInput(c *gin.Context) (*dao.User, error) {
 	var user *dao.User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		return nil, err
+		return nil, common.BadRequestError("invalid request body")
 	}
-	if user.Username == "" || user.Password == "" {
+	if user.Username == "" {
 		return nil, common.EmptyParamsError("username")
 	}
 	if user.Password == "" {
