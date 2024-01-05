@@ -44,6 +44,13 @@ func UnauthorizedError(message string) *APIError {
 	}
 }
 
+func NotFoundException(object string) *APIError {
+	return &APIError{
+		StatusCode: http.StatusNotFound,
+		Message:    object + " not found",
+	}
+}
+
 func EmptyParamsError(param string) *APIError {
 	return &APIError{
 		StatusCode: http.StatusBadRequest,

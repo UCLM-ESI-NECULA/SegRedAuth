@@ -10,7 +10,7 @@ type BaseModel struct {
 }
 
 type User struct {
-	ID       int    `gorm:"column:id; primary_key; not null" json:"id,omitempty"`
+	ID       int    `gorm:"column:id; primary_key; not null" json:"-"`
 	Username string `gorm:"unique;column:username; not null" json:"username"`
 	Password string `gorm:"column:password; not null" json:"password,omitempty"`
 	BaseModel

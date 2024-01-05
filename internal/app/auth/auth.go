@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"seg-red-auth/internal/app/common"
 	"strconv"
 	"time"
 )
@@ -25,7 +26,7 @@ func GenerateToken(username string) (string, error) {
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
 		log.Error("Got an error when generating the token", err)
-		return "", fmt.Errorf("error generating the token")
+		return "", common.BadRequestError("error generating the token")
 	}
 
 	return tokenString, nil
@@ -37,7 +38,7 @@ func GenerateToken(username string) (string, error) {
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", fmt.Errorf("error when generating the hash")
+		return "", common.BadRequestError("error when generating the hash")
 	}
 	return string(hashedPassword), nil
 }

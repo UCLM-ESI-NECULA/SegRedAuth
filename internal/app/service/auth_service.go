@@ -1,11 +1,11 @@
 package service
 
 import (
-	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"seg-red-auth/internal/app/auth"
+	"seg-red-auth/internal/app/common"
 	"seg-red-auth/internal/app/dao"
 	"seg-red-auth/internal/app/repository"
 	"time"
@@ -79,30 +79,30 @@ func (svc *AuthServiceImpl) ValidateToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			log.Error("Unexpected signing method: %v", token.Header["alg"])
-			return nil, fmt.Errorf("oops, something went wrong")
+			return nil, common.UnauthorizedError("Unexpected signing method")
 		}
 		return []byte(secret), nil
 	})
 	if err != nil {
-		return "", err
+		return "", common.UnauthorizedError(err.Error())
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		username, ok := claims["username"].(string)
 		if !ok {
 			log.Error("username not found in token")
-			return "", fmt.Errorf("username not found in token")
+			return "", common.UnauthorizedError("username not found in token")
 		}
 
 		if exp, ok := claims["exp"].(float64); ok {
 			if time.Unix(int64(exp), 0).Before(time.Now()) {
-				return "", fmt.Errorf("token expired")
+				return "", common.UnauthorizedError("token expired")
 			}
 		} else {
-			return "", fmt.Errorf("exp field not found in token")
+			return "", common.UnauthorizedError("exp field not found in token")
 		}
 
 		return username, nil
 	}
 
-	return "", fmt.Errorf("invalid token")
+	return "", common.UnauthorizedError("invalid token")
 }

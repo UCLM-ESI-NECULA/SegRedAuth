@@ -75,7 +75,7 @@ func (ac *AuthControllerImpl) Login(c *gin.Context) {
 func (ac *AuthControllerImpl) CheckToken(c *gin.Context) {
 	token := c.GetHeader("Authorization")
 	if token == "" {
-		common.ForwardError(c, common.UnauthorizedError("authorization header is required"))
+		common.ForwardError(c, common.UnauthorizedError("Authorization header is required"))
 		return
 	}
 
