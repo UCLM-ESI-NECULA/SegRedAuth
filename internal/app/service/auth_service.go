@@ -62,7 +62,7 @@ func (svc *AuthServiceImpl) AuthenticateUser(username, password string) (string,
 
 	err := auth.CheckPasswordHash(password, user.Password)
 	if err != nil {
-		return "", err
+		return "", common.UnauthorizedError("invalid password")
 	}
 
 	// Generate token
