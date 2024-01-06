@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	log "github.com/sirupsen/logrus"
 	"os"
+	"path/filepath"
 	"seg-red-auth/internal/app/config"
 )
 
@@ -14,10 +14,10 @@ func init() {
 
 func main() {
 	port := os.Getenv("PORT")
+	certs := os.Getenv("CERTS_FOLDER")
 	app := config.SetupRouter()
-
-	err := app.Run(":" + port)
+	err := app.RunTLS(":"+port, filepath.Join(certs, "mycert.crt"), filepath.Join(certs, "mycert.key"))
 	if err != nil {
-		log.Error("Error running server: ", err)
+		panic(err)
 	}
 }
