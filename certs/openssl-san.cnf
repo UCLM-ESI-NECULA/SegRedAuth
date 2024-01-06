@@ -1,0 +1,21 @@
+[ req ]
+default_bits        = 4096
+default_md          = sha256
+default_keyfile     = auth.key
+prompt              = no
+encrypt_key         = no
+distinguished_name  = req_distinguished_name
+req_extensions      = req_ext
+
+[ req_distinguished_name ]
+countryName         = "US"
+stateOrProvinceName = "California"
+localityName        = "San Francisco"
+organizationName    = "Your Organization"
+commonName          = "auth"
+
+[ req_ext ]
+subjectAltName      = @alt_names
+
+[ alt_names ]
+DNS.1               = "auth"
