@@ -17,16 +17,14 @@ COPY go.sum ./
 RUN go mod download
 
 COPY . .
-COPY ./certs/mycert.crt ./certs/mycert.key ./
+COPY ./certs/auth.crt ./certs/auth.key ./
 
 # Build the app
 RUN go build -o /app/main ./cmd/app
 
-# Expose the port of the service and the SSH port
-EXPOSE 8080 22
-
 # Copy the entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
 
 ENTRYPOINT ["/entrypoint.sh"]
